@@ -82,7 +82,9 @@ uint8_t next_val(){
   if (counter > BTN_TRSH) {
       btn = btn_tmp;
       if (btn == PC2) {
-          // TODO tomorrow
+          PORTC |= (1<<PC5); // enable LED
+      } else {
+          PORTC &= ~(1<<PC5); // disable LED
       }
   }
 
@@ -139,6 +141,11 @@ void btn_init() {
     PORTC |= (1<<PC2);
 }
 
+void led_init() {
+    //set PC5 as output
+    DDRC |= (1<<PC5);
+}
+
 uint16_t adc_read(uint8_t mux) {
   // select desired channel
   ADMUX = mux;
@@ -186,6 +193,7 @@ int main() {
   adc_init();
   pwm_timer_init();
   btn_init();
+  led_init();
   sei();
   
   double step_double, vol_double;
