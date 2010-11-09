@@ -15,7 +15,7 @@
 #define MAX_STATE 65535
 // um wieviel wird step modifiziert
 #define MOD_DIFF  200
-#define COUNTER_MAX 256
+#define COUNTER_MAX 10
 #define BTN_TRSH 1000
 
 uint16_t state;	// phase of triangle wave
@@ -73,20 +73,20 @@ uint8_t next_val(){
 
   // check button
   btn_tmp_prev = btn_tmp;
-  btn_tmp = PORTC & (1<<PC2);
+  btn_tmp = PINC & (1<<PC2);
   if (btn_tmp == btn_tmp_prev) {
       btn_counter++;
   } else {
       btn_counter = 0;
   }
-  if (counter > BTN_TRSH) {
+//  if (counter > BTN_TRSH) {
       btn = btn_tmp;
-      if (btn == PC2) {
-          PORTC |= (1<<PC5); // enable LED
+      if (btn ==(1<<PC2)) {
+        PORTC &= ~(1<<PC5);  //disable LED
       } else {
-          PORTC &= ~(1<<PC5); // disable LED
+        PORTC |= (1<<PC5); // enable LED
       }
-  }
+//  }
 
   return (uint8_t)(rawweighted>>8); 
 }
