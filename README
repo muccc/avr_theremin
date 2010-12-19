@@ -1,0 +1,10 @@
+AVR Theremin
+============
+
+Based on http://www.nerdkits.com/videos/theremin_with_ir_distance_sensor/ with a few modifications.
+
+To build the firmware run `make` in the `software` subdirectory. Flash it to the chip with `make prog`.
+
+The `hardware` subdirectory contains Eagle files for our own PCB design.
+
+Have fun!
