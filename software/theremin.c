@@ -75,7 +75,7 @@ uint8_t next_val(){
 
   // check button
   btn_tmp_prev = btn_tmp;
-  btn_tmp = PINC & (1<<PC2);
+  btn_tmp = PINC & BTN_L;
   if (btn_tmp == btn_tmp_prev) {
       btn_counter++;
   } else {
@@ -83,18 +83,18 @@ uint8_t next_val(){
   }
 //  if (counter > BTN_TRSH) {
       btn = btn_tmp;
-      if (btn ==(1<<PC2)) {
-        PORTC &= ~(1<<PC5);  //disable LED
+      if (btn == BTN_L) {
+        PORTC &= ~LED_G1;  //disable LED G1
       } else {
-        PORTC |= (1<<PC5); // enable LED
+        PORTC |= LED_G1; // enable LED G1
       }
 //  }
 
   return (uint8_t)(rawweighted>>8); 
 }
 
-ISR(TIMER1_OVF_vect){ //set the new value of OCR1A
-  OCR1A = next_val();
+ISR(TIMER1_OVF_vect){ //set the new value of PZ
+  PZ = next_val();
 }
 
 void pwm_timer_init(){
@@ -108,11 +108,11 @@ void pwm_timer_init(){
 
   //using TIMER1 16-bit
   
-  //set OC1A for clear on compare match, fast PWM mode, TOP value in ICR1, no prescaler
-  //compare mach is done against value in OCR1A
+  //set PZ for clear on compare match, fast PWM mode, TOP value in ICR1, no prescaler
+  //compare mach is done against value in PZ
   TCCR1A |= (1<<COM1A1) | (1<<WGM11);
   TCCR1B |= (1<<WGM13) | (1<<WGM12) | (1<<CS10);
-  OCR1A = 0;
+  PZ = 0;
   ICR1 = 0xFF;
 
   //enable interrupt on overflow. to set the next value
@@ -138,14 +138,14 @@ void adc_init() {
 
 void btn_init() {
     // set PC2 as input
-    DDRC &= ~(1<<PC2);
+    DDRC &= ~BTN_L;
     // enable internal pullup on PC2
-    PORTC |= (1<<PC2);
+    PORTC |= BTN_L;
 }
 
 void led_init() {
     //set PC5 as output
-    DDRC |= (1<<PC5);
+    DDRC |= LED_G1;
 }
 
 uint16_t adc_read(uint8_t mux) {
@@ -202,8 +202,8 @@ int main() {
   while(1) {
 
     //grab the hand positions
-    hand_position_0 = adc_average(0, 25);
-    hand_position_1 = adc_average(1, 25);
+    hand_position_0 = adc_average(PT_L, 25);
+    hand_position_1 = adc_average(PT_R, 25);
 
     // PITCH
     //linear interpolate
