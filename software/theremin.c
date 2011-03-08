@@ -12,6 +12,8 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
+#include "pins.h"
+
 #define MAX_STATE 65535
 // um wieviel wird step modifiziert
 #define MOD_DIFF  200
