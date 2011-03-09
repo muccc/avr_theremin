@@ -16,10 +16,12 @@
 #define BTN_R2 (1<<PC3) /* rechts unten */
 
 /* Piezo */
-#define PZ OCR1A
+#define PZR OCR1A       /* zugehoeriges Register */
+#define PZ (1<<PB1)     /* Pin */
 
 /* Speaker ("Piezo2") */
-#define SP OCR1B
+#define SPR OCR1B       /* zugehoeriges Register */
+#define SP (1<<PB2)     /* Pin */
 
 /* IR Phototransistoren */
 #define PT_L 0   /*PT1, links */

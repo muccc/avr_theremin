@@ -75,7 +75,7 @@ uint8_t next_val(){
 
   // check button
   btn_tmp_prev = btn_tmp;
-  btn_tmp = PINC & BTN_L;
+  btn_tmp = PINC & BTN_R2;
   if (btn_tmp == btn_tmp_prev) {
       btn_counter++;
   } else {
@@ -83,18 +83,18 @@ uint8_t next_val(){
   }
 //  if (counter > BTN_TRSH) {
       btn = btn_tmp;
-      if (btn == BTN_L) {
-        PORTC &= ~LED_G1;  //disable LED G1
+      if (btn == BTN_R2) {
+        PORTD &= ~LED_G1;  //disable LED G1, !!ggf. Register anpassen
       } else {
-        PORTC |= LED_G1; // enable LED G1
+        PORTD |= LED_G1;   //enable LED G1, !!ggf. Register anpassen
       }
 //  }
 
   return (uint8_t)(rawweighted>>8); 
 }
 
-ISR(TIMER1_OVF_vect){ //set the new value of PZ
-  PZ = next_val();
+ISR(TIMER1_OVF_vect){ //set the new value of PZR
+  PZR = next_val();
 }
 
 void pwm_timer_init(){
@@ -108,18 +108,18 @@ void pwm_timer_init(){
 
   //using TIMER1 16-bit
   
-  //set PZ for clear on compare match, fast PWM mode, TOP value in ICR1, no prescaler
-  //compare mach is done against value in PZ
+  //set PZR for clear on compare match, fast PWM mode, TOP value in ICR1, no prescaler
+  //compare mach is done against value in PZR
   TCCR1A |= (1<<COM1A1) | (1<<WGM11);
   TCCR1B |= (1<<WGM13) | (1<<WGM12) | (1<<CS10);
-  PZ = 0;
+  PZR = 0;
   ICR1 = 0xFF;
 
   //enable interrupt on overflow. to set the next value
   TIMSK1 |= (1<<TOIE1);
 
-  // set PB1 as PWM output
-  DDRB |= (1<<PB1);
+  // set PZ as PWM output
+  DDRB |= PZ;
 }
 
 void adc_init() {
@@ -128,7 +128,7 @@ void adc_init() {
   ADMUX = 0;
 
   // set analog to digital converter
-  // to be enabled, with a clock prescale of 1/128
+  // to be enabled, with a clock prescale of 1/128 (ADPS2,1,0 gesetzt)
   // so that the ADC clock runs at 115.2kHz.
   ADCSRA = (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0);
 
@@ -137,15 +137,23 @@ void adc_init() {
 }
 
 void btn_init() {
-    // set PC2 as input
+    // set Buttons as input
+    DDRC &= ~BTN_R1;
+    DDRC &= ~BTN_R2;
     DDRC &= ~BTN_L;
-    // enable internal pullup on PC2
+    // enable internal pullup for Buttons 
+    PORTC |= BTN_R1;
+    PORTC |= BTN_R2;
     PORTC |= BTN_L;
 }
 
 void led_init() {
-    //set PC5 as output
-    DDRC |= LED_G1;
+    //set LED ports, !!ggf. Register anpassen
+    DDRD |= LED_G1;
+    DDRD |= LED_G2;
+    DDRD |= LED_G3;
+    DDRD |= LED_Y;
+    DDRD |= LED_R;
 }
 
 uint16_t adc_read(uint8_t mux) {
@@ -192,9 +200,9 @@ int main() {
   step_mod = 100;
   vol = 255;
 
+  btn_init();
   adc_init();
   pwm_timer_init();
-  btn_init();
   led_init();
   sei();
   
@@ -202,8 +210,8 @@ int main() {
   while(1) {
 
     //grab the hand positions
-    hand_position_0 = adc_average(PT_L, 25);
-    hand_position_1 = adc_average(PT_R, 25);
+    hand_position_0 = adc_average(0/*PT_L*/, 25);
+    hand_position_1 = adc_average(2/*PT_R*/, 25);
 
     // PITCH
     //linear interpolate
