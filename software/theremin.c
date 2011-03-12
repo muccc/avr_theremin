@@ -16,7 +16,7 @@
 
 #define MAX_STATE 65535
 // um wieviel wird step modifiziert
-#define MOD_DIFF  200
+#define MOD_DIFF  0 //200
 #define COUNTER_MAX 10
 #define BTN_TRSH 1000
 
@@ -94,7 +94,7 @@ uint8_t next_val(){
 }
 
 ISR(TIMER1_OVF_vect){ //set the new value of PZR
-  PZR = next_val();
+  PZR = SPR = next_val();
 }
 
 void pwm_timer_init(){
@@ -110,9 +110,10 @@ void pwm_timer_init(){
   
   //set PZR for clear on compare match, fast PWM mode, TOP value in ICR1, no prescaler
   //compare mach is done against value in PZR
-  TCCR1A |= (1<<COM1A1) | (1<<WGM11);
+  TCCR1A |= (1<<COM1A1) | (1<<COM1B1) | (1<<WGM11);
   TCCR1B |= (1<<WGM13) | (1<<WGM12) | (1<<CS10);
   PZR = 0;
+  SPR = 0;
   ICR1 = 0xFF;
 
   //enable interrupt on overflow. to set the next value
@@ -120,6 +121,7 @@ void pwm_timer_init(){
 
   // set PZ as PWM output
   DDRB |= PZ;
+  DDRB |= SP;
 }
 
 void adc_init() {
