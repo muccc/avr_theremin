@@ -1,3 +1,5 @@
 <language de>
 AVR Theremin
+theremin_gross_mono.sch/.brd - Single sided layout without USB
+theremin_gross.sch/.brd - Double sided layout with USB
 </language de>
