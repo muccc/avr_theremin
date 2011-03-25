@@ -1,0 +1,8 @@
+#!/bin/bash
+while [ true ]
+do
+read
+make fuse && make flash && make lock
+done
+
+
