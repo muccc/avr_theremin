@@ -2,8 +2,8 @@
 // for NerdKits with ATmega168
 // hevans@nerdkits.com
 
-#define F_CPU 14745600
-#define __AVR_ATmega168__ 1
+// #define F_CPU 14745600
+// #define __AVR_ATmega168__ 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +11,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/wdt.h>
 
 #include "pins.h"
 
@@ -94,7 +95,7 @@ uint8_t next_val(){
 }
 
 ISR(TIMER1_OVF_vect){ //set the new value of PZR
-  PZR = SPR = next_val();
+  PZ1R = PZ2R = next_val();
 }
 
 void pwm_timer_init(){
@@ -112,16 +113,16 @@ void pwm_timer_init(){
   //compare mach is done against value in PZR
   TCCR1A |= (1<<COM1A1) | (1<<COM1B1) | (1<<WGM11);
   TCCR1B |= (1<<WGM13) | (1<<WGM12) | (1<<CS10);
-  PZR = 0;
-  SPR = 0;
+  PZ1R = 0;
+  PZ2R = 0;
   ICR1 = 0xFF;
 
   //enable interrupt on overflow. to set the next value
   TIMSK1 |= (1<<TOIE1);
 
   // set PZ as PWM output
-  DDRB |= PZ;
-  DDRB |= SP;
+  DDRB |= PZ1;
+  DDRB |= PZ2;
 }
 
 void adc_init() {
@@ -192,6 +193,14 @@ double adc_average(uint8_t mux, uint8_t count) {
 double hand_position_0, hand_position_1;
 
 int main() {
+    wdt_disable();
+    /* Clear WDRF in MCUSR */
+    MCUSR &= ~(1<<WDRF);
+    /* Write logical one to WDCE and WDE */
+    /* Keep old prescaler setting to prevent unintentional time-out */
+    WDTCSR |= (1<<WDCE) | (1<<WDE);
+    /* Turn off WDT */
+    WDTCSR = 0x00;
 /*  uart_init();
   FILE uart_stream = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
   stdin = stdout = &uart_stream;
@@ -206,14 +215,18 @@ int main() {
   adc_init();
   pwm_timer_init();
   led_init();
+  ir_init();
   sei();
+
+  enable_ir1();
+  enable_ir2();
   
   double step_double, vol_double;
   while(1) {
 
     //grab the hand positions
-    hand_position_0 = adc_average(0/*PT_L*/, 25);
-    hand_position_1 = adc_average(2/*PT_R*/, 25);
+    hand_position_0 = adc_average(PT_L, 25);
+    hand_position_1 = adc_average(PT_R, 25);
 
     // PITCH
     //linear interpolate

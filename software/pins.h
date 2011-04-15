@@ -16,15 +16,22 @@
 #define BTN_R2 (1<<PC3) /* rechts unten */
 
 /* Piezo */
-#define PZR OCR1A       /* zugehoeriges Register */
-#define PZ (1<<PB1)     /* Pin */
+#define PZ1R OCR1A       /* zugehoeriges Register */
+#define PZ1 (1<<PB1)     /* Pin */
 
 /* Speaker ("Piezo2") */
-#define SPR OCR1B       /* zugehoeriges Register */
-#define SP (1<<PB2)     /* Pin */
+#define PZ2R OCR1B       /* zugehoeriges Register */
+#define PZ2 (1<<PB2)     /* Pin */
 
 /* IR Phototransistoren */
 #define PT_L 0   /*PT1, links */
 #define PT_R 2   /*PT2, rechts */
+
+/* IR LEDs */
+#define ir_init() DDRB |= (1<<PB0); DDRD |= (1<<PD7)
+#define disable_ir1() PORTB |= (1<<PB0)
+#define disable_ir2() PORTD |= (1<<PD7)
+#define enable_ir1() PORTB &= ~(1<<PB0)
+#define enable_ir2() PORTD &= ~(1<<PD7)
 
 #endif /* _PINS_H */
