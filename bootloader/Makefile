@@ -16,12 +16,12 @@
 
 F_CPU = 16000000
 DEVICE = atmega168
-#BOOTLOADER_ADDRESS = 3800
-BOOTLOADER_ADDRESS = 1800
+BOOTLOADER_ADDRESS = 3800
+#BOOTLOADER_ADDRESS = 1800
 FUSEOPT = $(FUSEOPT_168)
 LOCKOPT = -U lock:w:0x2f:m
 
-PROGRAMMER = 
+PROGRAMMER = -c avrisp2 -P usb
 # PROGRAMMER contains AVRDUDE options to address your programmer
 
 FUSEOPT_8 = -U hfuse:w:0xc0:m -U lfuse:w:0x9f:m

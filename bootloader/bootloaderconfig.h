@@ -77,7 +77,7 @@ these macros are defined, the boot loader usees them.
 /* ---------------------- feature / code size options ---------------------- */
 /* ------------------------------------------------------------------------- */
 
-#define HAVE_EEPROM_PAGED_ACCESS    0
+#define HAVE_EEPROM_PAGED_ACCESS    1
 /* If HAVE_EEPROM_PAGED_ACCESS is defined to 1, page mode access to EEPROM is
  * compiled in. Whether page mode or byte mode access is used by AVRDUDE
  * depends on the target device. Page mode is only used if the device supports
@@ -122,7 +122,7 @@ these macros are defined, the boot loader usees them.
 
 /* ------------------------------------------------------------------------- */
 
-/* Example configuration: Port D bit 3 is connected to a jumper which ties
+/* Example configuration: Port C bit 1 is connected to a jumper which ties
  * this pin to GND if the boot loader is requested. Initialization allows
  * several clock cycles for the input voltage to stabilize before
  * bootLoaderCondition() samples the value.
