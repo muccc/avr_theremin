@@ -132,7 +132,7 @@ void adc_init() {
 
   // set analog to digital converter
   // to be enabled, with a clock prescale of 1/128 (ADPS2,1,0 gesetzt)
-  // so that the ADC clock runs at 115.2kHz.
+  // so that the ADC clock runs at 125kHz.
   ADCSRA = (1<<ADEN) | (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0);
 
   // fire a conversion just to get the ADC warmed up
@@ -190,7 +190,8 @@ double adc_average(uint8_t mux, uint8_t count) {
   return foo / ((double) count);
 }
 
-double hand_position_0, hand_position_1;
+double hand_position_left, hand_position_right;
+double adc_left_on, adc_left_off, adc_right_on, adc_right_off;
 
 int main() {
     wdt_disable();
@@ -224,18 +225,32 @@ int main() {
   double step_double, vol_double;
   while(1) {
 
-    //grab the hand positions
-    hand_position_0 = adc_average(PT_L, 25);
-    hand_position_1 = adc_average(PT_R, 25);
+    // filter ambient light
+    disable_ir1();
+    disable_ir2();
+    // grab adc values for background light
+    for (uint16_t i = 0; i < 4000; i++) {} // give the LED and PT some time to react
+    adc_left_off = adc_average(PT_L, 20);
+    adc_right_off = adc_average(PT_R, 20);
+    // turn IR_lEDs on again and grab another pair of adc values
+    enable_ir1();
+    enable_ir2();
+    for (uint16_t i = 0; i < 4000; i++) {} // give the LED and PT some time to react
+    adc_left_on = adc_average(PT_L, 20);
+    adc_right_on = adc_average(PT_R, 20);
+
+    // calculate the difference
+    hand_position_left = adc_left_on - adc_left_off;
+    hand_position_right = adc_right_on - adc_right_off;
 
     // PITCH
     //linear interpolate
     //step size should be between 100-12000
     //adc values between 200-950
     //y - (x-200)*( (12000-100)/(950-200) + 100
-    step_double = ((hand_position_0 - 50)* 10) + 100;
-    if(step_double < 1) {
-      step = 1;
+    step_double = ((hand_position_left - 50)* 10) + 100;
+    if(step_double < 100) {
+      step = 100;
     } else if(step_double > 12000) {
       step = 12000;
     } else {
@@ -243,7 +258,7 @@ int main() {
     }
     
     // VOLUME
-    vol_double = (hand_position_1 - 10);
+    vol_double = (hand_position_right - 10);
     if(vol_double < 0) {
       vol = 0;
     } else if(vol_double >= 255) {
