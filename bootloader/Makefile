@@ -26,7 +26,7 @@ PROGRAMMER = -c avrisp2 -P usb
 
 FUSEOPT_8 = -U hfuse:w:0xc0:m -U lfuse:w:0x9f:m
 FUSEOPT_88 = -B 100 -U hfuse:w:0xd6:m -U lfuse:w:0xdf:m -U efuse:w:0x00:m
-FUSEOPT_168 = -U hfuse:w:0xd6:m -U lfuse:w:0xdf:m -U efuse:w:0x00:m
+FUSEOPT_168 = -B 100 -U hfuse:w:0xd6:m -U lfuse:w:0xdf:m -U efuse:w:0x00:m
 # You may have to change the order of these -U commands.
 
 #---------------------------------------------------------------------
